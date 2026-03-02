@@ -31,7 +31,7 @@ body {
 }
 
 .container {
-  max-width: 560px;
+  max-width: 600px;
   width: 100%;
   text-align: center;
 }
@@ -62,27 +62,73 @@ h1 {
   padding: 0 16px;
 }
 
-.alternative-card {
-  background-color: var(--bg-card);
-  border: 1px solid rgba(233, 69, 96, 0.3);
-  border-radius: var(--border-radius);
-  padding: 28px 24px;
+/* ─── Alternatives Section ─── */
+
+.alternatives-section {
   margin-bottom: 32px;
 }
 
-.alternative-card h2 {
+.alternatives-section h2 {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.alternative-card p {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
-  line-height: 1.5;
+.alternatives-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
+.alt-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-card);
+  border: 1px solid rgba(233, 69, 96, 0.2);
+  border-radius: var(--border-radius);
+  padding: 16px 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  text-align: left;
+  gap: 8px;
+}
+
+.alt-card:hover {
+  border-color: var(--accent-red);
+  background-color: rgba(15, 52, 96, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.15);
+}
+
+.alt-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-red);
+  white-space: nowrap;
+}
+
+.alt-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+  padding-left: 4px;
+}
+
+.alt-arrow {
+  font-size: 20px;
+  color: var(--accent-red);
+  margin-left: auto;
+  padding-left: 12px;
+  transition: transform 0.2s ease;
+}
+
+.alt-card:hover .alt-arrow {
+  transform: translateX(4px);
+}
+
+/* ─── Buttons ─── */
 
 .btn {
   display: inline-block;
@@ -95,17 +141,6 @@ h1 {
   text-decoration: none;
   transition: all 0.2s ease;
   font-family: inherit;
-}
-
-.btn-primary {
-  background-color: var(--accent-red);
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background-color: var(--accent-red-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
 }
 
 .btn-secondary {
@@ -150,7 +185,8 @@ h1 {
 @media (max-width: 480px) {
   h1 { font-size: 22px; }
   .message { font-size: 14px; }
-  .alternative-card { padding: 20px 16px; }
+  .alt-card { padding: 14px 16px; }
+  .alt-desc { display: none; }
   .actions { flex-direction: column; }
   .btn-secondary { margin-right: 0; }
 }
