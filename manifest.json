@@ -22,7 +22,16 @@
     "*://maps.google.com/*",
     "*://mail.google.com/*",
     "*://translate.google.com/*",
-    "*://drive.google.com/*"
+    "*://drive.google.com/*",
+    "*://*.bing.com/*",
+    "*://*.twitter.com/*",
+    "*://*.x.com/*",
+    "*://www.reddit.com/*",
+    "*://*.medium.com/*",
+    "*://web.whatsapp.com/*",
+    "*://*.outlook.com/*",
+    "*://*.outlook.live.com/*",
+    "*://*.hotmail.com/*"
   ],
   "background": {
     "service_worker": "background.js"
