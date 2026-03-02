@@ -1,0 +1,7 @@
+# Build tools (not part of the extension)
+generate-icons.js
+generate-icons.html
+
+# OS files
+.DS_Store
+Thumbs.db

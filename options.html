@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirect DG — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div class="header-content">
+        <img src="icons/icon48.png" alt="Redirect DG" class="logo" width="36" height="36">
+        <div>
+          <h1>Redirect DG</h1>
+          <p class="subtitle">Privacy redirect settings</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Global toggle -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Status</h2>
+          <label class="toggle-switch">
+            <input type="checkbox" id="globalToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <p class="card-description" id="globalStatusText">
+          All redirect rules are currently active.
+        </p>
+      </section>
+
+      <!-- Redirect rules -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Redirect Rules</h2>
+          <div class="header-actions">
+            <button id="addRuleBtn" class="btn btn-small btn-primary">+ Add Rule</button>
+            <button id="resetBtn" class="btn btn-small btn-ghost">Reset Defaults</button>
+          </div>
+        </div>
+
+        <div class="rules-table-wrapper">
+          <table class="rules-table" id="rulesTable">
+            <thead>
+              <tr>
+                <th class="col-enabled">On</th>
+                <th class="col-label">Label</th>
+                <th class="col-from">From Pattern</th>
+                <th class="col-action">Action</th>
+                <th class="col-to">To URL / Message</th>
+                <th class="col-delete"></th>
+              </tr>
+            </thead>
+            <tbody id="rulesBody">
+              <!-- Rows populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-footer">
+          <button id="saveBtn" class="btn btn-primary">Save Changes</button>
+          <span id="saveStatus" class="save-status"></span>
+        </div>
+      </section>
+
+      <!-- Payment exclusions (read-only) -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Payment Exclusions</h2>
+          <span class="badge badge-info">Read-only</span>
+        </div>
+        <p class="card-description">
+          The following patterns are <strong>never redirected</strong> to protect payment and billing flows.
+          These exclusions cannot be modified.
+        </p>
+
+        <div class="exclusions-list" id="exclusionsList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- About -->
+      <section class="card">
+        <div class="card-header">
+          <h2>About</h2>
+        </div>
+        <p class="card-description">
+          Redirect DG automatically redirects navigation from big-tech platforms to
+          privacy-friendly alternatives. Direct redirects happen silently. Interstitial
+          rules display a warning page with an option to continue to the original site.
+        </p>
+        <p class="card-description" style="margin-top: 8px;">
+          Version 1.0.0
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add/Edit Rule Modal -->
+  <div class="modal-overlay" id="ruleModal" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add New Rule</h3>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="ruleLabel">Label</label>
+          <input type="text" id="ruleLabel" placeholder="e.g., Search (main)">
+        </div>
+        <div class="form-group">
+          <label for="ruleFrom">From Pattern</label>
+          <input type="text" id="ruleFrom" placeholder="e.g., *://*.example.com/*">
+          <span class="hint">Use * as wildcard. Protocol and path required.</span>
+        </div>
+        <div class="form-group">
+          <label for="ruleAction">Action</label>
+          <select id="ruleAction">
+            <option value="redirect">Redirect</option>
+            <option value="interstitial">Interstitial Warning</option>
+          </select>
+        </div>
+
+        <!-- Fields for redirect action -->
+        <div id="redirectFields">
+          <div class="form-group">
+            <label for="ruleToUrl">Redirect To URL</label>
+            <input type="url" id="ruleToUrl" placeholder="https://example.com/">
+          </div>
+          <div class="form-group">
+            <label for="rulePreserveQuery">Preserve Query Param (optional)</label>
+            <input type="text" id="rulePreserveQuery" placeholder="e.g., q">
+            <span class="hint">If set, this URL param is carried over to the target URL.</span>
+          </div>
+        </div>
+
+        <!-- Fields for interstitial action -->
+        <div id="interstitialFields" hidden>
+          <div class="form-group">
+            <label for="ruleMessage">Warning Message</label>
+            <textarea id="ruleMessage" rows="3" placeholder="This site tracks your activity..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="ruleAltUrl">Alternative URL</label>
+            <input type="url" id="ruleAltUrl" placeholder="https://alternative.com/">
+          </div>
+          <div class="form-group">
+            <label for="ruleAltName">Alternative Name</label>
+            <input type="text" id="ruleAltName" placeholder="e.g., ProtonMail">
+          </div>
+        </div>
+
+        <div id="modalError" class="error-message" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button id="modalCancel" class="btn btn-ghost">Cancel</button>
+        <button id="modalSave" class="btn btn-primary">Add Rule</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
