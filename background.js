@@ -81,9 +81,12 @@ const DEFAULT_RULES = [
     label: 'Video platform',
     fromPattern: '*://*.youtube.com/*',
     action: 'interstitial',
-    message: 'This site tracks your activity extensively. Consider using FreeTube (desktop app), Invidious or Piped (web) — privacy-friendly alternatives that let you watch without being profiled.',
-    alternativeUrl: 'https://freetubeapp.io',
-    alternativeName: 'FreeTube / Invidious / Piped',
+    message: 'This site tracks your activity extensively. Consider one of these privacy-friendly alternatives.',
+    alternatives: [
+      { name: 'FreeTube', url: 'https://freetubeapp.io', desc: 'Desktop app — no ads, no tracking' },
+      { name: 'Invidious', url: 'https://invidious.io', desc: 'Web frontend — no account needed' },
+      { name: 'Piped', url: 'https://piped.video', desc: 'Web frontend — lightweight and fast' }
+    ],
     enabled: true
   },
   {
@@ -107,9 +110,11 @@ const DEFAULT_RULES = [
     label: 'Email',
     fromPattern: '*://mail.google.com/*',
     action: 'interstitial',
-    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
-    alternativeUrl: 'https://protonmail.com',
-    alternativeName: 'ProtonMail',
+    message: 'This email service scans your messages for targeted advertising. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'ProtonMail', url: 'https://protonmail.com', desc: 'End-to-end encrypted, Swiss privacy' },
+      { name: 'Tuta', url: 'https://tuta.com', desc: 'Encrypted email, based in Germany' }
+    ],
     enabled: true
   },
   {
@@ -125,9 +130,11 @@ const DEFAULT_RULES = [
     label: 'Cloud Storage',
     fromPattern: '*://drive.google.com/*',
     action: 'interstitial',
-    message: 'This cloud storage service accesses your files for data profiling. Consider switching to Proton Drive for private, encrypted storage.',
-    alternativeUrl: 'https://proton.me/drive',
-    alternativeName: 'Proton Drive',
+    message: 'This cloud storage service accesses your files for data profiling. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'Proton Drive', url: 'https://proton.me/drive', desc: 'Encrypted cloud storage by Proton' },
+      { name: 'Filen', url: 'https://filen.io', desc: 'Zero-knowledge encrypted storage' }
+    ],
     enabled: true
   },
   {
@@ -151,9 +158,11 @@ const DEFAULT_RULES = [
     label: 'Calendar',
     fromPattern: '*://calendar.google.com/*',
     action: 'interstitial',
-    message: 'This calendar service links your schedule to a data profile. Consider switching to Proton Calendar for private, encrypted scheduling.',
-    alternativeUrl: 'https://calendar.proton.me',
-    alternativeName: 'Proton Calendar',
+    message: 'This calendar service links your schedule to a data profile. Consider a private alternative.',
+    alternatives: [
+      { name: 'Proton Calendar', url: 'https://calendar.proton.me', desc: 'Encrypted calendar by Proton' },
+      { name: 'Tuta Calendar', url: 'https://tuta.com/calendar', desc: 'Built into Tuta encrypted email' }
+    ],
     enabled: true
   },
   {
@@ -161,9 +170,11 @@ const DEFAULT_RULES = [
     label: 'Documents',
     fromPattern: '*://docs.google.com/*',
     action: 'interstitial',
-    message: 'This productivity suite scans your documents for profiling. Consider switching to CryptPad for collaborative, encrypted editing.',
-    alternativeUrl: 'https://cryptpad.fr',
-    alternativeName: 'CryptPad',
+    message: 'This productivity suite scans your documents for profiling. Consider a private alternative.',
+    alternatives: [
+      { name: 'CryptPad', url: 'https://cryptpad.fr', desc: 'Encrypted collaborative editing' },
+      { name: 'OnlyOffice', url: 'https://www.onlyoffice.com', desc: 'Self-hostable office suite' }
+    ],
     enabled: true
   },
   {
@@ -171,9 +182,11 @@ const DEFAULT_RULES = [
     label: 'Photos',
     fromPattern: '*://photos.google.com/*',
     action: 'interstitial',
-    message: 'This photo service uses facial recognition and scans your images. Consider switching to Ente for encrypted, private photo storage.',
-    alternativeUrl: 'https://ente.io',
-    alternativeName: 'Ente',
+    message: 'This photo service uses facial recognition and scans your images. Consider a private alternative.',
+    alternatives: [
+      { name: 'Ente', url: 'https://ente.io', desc: 'Encrypted photo storage and sharing' },
+      { name: 'Immich', url: 'https://immich.app', desc: 'Self-hosted photo management' }
+    ],
     enabled: true
   },
   {
@@ -181,9 +194,12 @@ const DEFAULT_RULES = [
     label: 'Notes',
     fromPattern: '*://keep.google.com/*',
     action: 'interstitial',
-    message: 'This notes app syncs your data for profiling. Consider switching to Standard Notes for end-to-end encrypted note-taking.',
-    alternativeUrl: 'https://standardnotes.com',
-    alternativeName: 'Standard Notes',
+    message: 'This notes app syncs your data for profiling. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'Standard Notes', url: 'https://standardnotes.com', desc: 'End-to-end encrypted notes' },
+      { name: 'Joplin', url: 'https://joplinapp.org', desc: 'Open-source note-taking app' },
+      { name: 'Notesnook', url: 'https://notesnook.com', desc: 'Private, zero-knowledge notes' }
+    ],
     enabled: true
   },
   {
@@ -200,9 +216,11 @@ const DEFAULT_RULES = [
     label: 'Social (Twitter)',
     fromPattern: '*://*.twitter.com/*',
     action: 'interstitial',
-    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider switching to Bluesky for a more open, decentralized social experience.',
-    alternativeUrl: 'https://bsky.app',
-    alternativeName: 'Bluesky',
+    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider a decentralized alternative.',
+    alternatives: [
+      { name: 'Bluesky', url: 'https://bsky.app', desc: 'Open, decentralized social network' },
+      { name: 'Mastodon', url: 'https://joinmastodon.org', desc: 'Federated, community-owned social' }
+    ],
     enabled: true
   },
   {
@@ -210,9 +228,11 @@ const DEFAULT_RULES = [
     label: 'Social (X)',
     fromPattern: '*://*.x.com/*',
     action: 'interstitial',
-    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider switching to Bluesky for a more open, decentralized social experience.',
-    alternativeUrl: 'https://bsky.app',
-    alternativeName: 'Bluesky',
+    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider a decentralized alternative.',
+    alternatives: [
+      { name: 'Bluesky', url: 'https://bsky.app', desc: 'Open, decentralized social network' },
+      { name: 'Mastodon', url: 'https://joinmastodon.org', desc: 'Federated, community-owned social' }
+    ],
     enabled: true
   },
   {
@@ -238,9 +258,11 @@ const DEFAULT_RULES = [
     label: 'Messaging (WhatsApp)',
     fromPattern: '*://web.whatsapp.com/*',
     action: 'interstitial',
-    message: 'This messaging service shares metadata with its parent company for advertising. Consider switching to Signal for truly private, encrypted messaging.',
-    alternativeUrl: 'https://signal.org',
-    alternativeName: 'Signal',
+    message: 'This messaging service shares metadata with its parent company for advertising. Consider a truly private alternative.',
+    alternatives: [
+      { name: 'Signal', url: 'https://signal.org', desc: 'Truly private, encrypted messaging' },
+      { name: 'Element', url: 'https://element.io', desc: 'Decentralized chat via Matrix protocol' }
+    ],
     enabled: true
   },
   {
@@ -248,9 +270,11 @@ const DEFAULT_RULES = [
     label: 'Email (Outlook)',
     fromPattern: '*://*.outlook.com/*',
     action: 'interstitial',
-    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
-    alternativeUrl: 'https://protonmail.com',
-    alternativeName: 'ProtonMail',
+    message: 'This email service scans your messages for targeted advertising. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'ProtonMail', url: 'https://protonmail.com', desc: 'End-to-end encrypted, Swiss privacy' },
+      { name: 'Tuta', url: 'https://tuta.com', desc: 'Encrypted email, based in Germany' }
+    ],
     enabled: true
   },
   {
@@ -258,9 +282,11 @@ const DEFAULT_RULES = [
     label: 'Email (Outlook Live)',
     fromPattern: '*://*.outlook.live.com/*',
     action: 'interstitial',
-    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
-    alternativeUrl: 'https://protonmail.com',
-    alternativeName: 'ProtonMail',
+    message: 'This email service scans your messages for targeted advertising. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'ProtonMail', url: 'https://protonmail.com', desc: 'End-to-end encrypted, Swiss privacy' },
+      { name: 'Tuta', url: 'https://tuta.com', desc: 'Encrypted email, based in Germany' }
+    ],
     enabled: true
   },
   {
@@ -268,9 +294,11 @@ const DEFAULT_RULES = [
     label: 'Email (Hotmail)',
     fromPattern: '*://*.hotmail.com/*',
     action: 'interstitial',
-    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
-    alternativeUrl: 'https://protonmail.com',
-    alternativeName: 'ProtonMail',
+    message: 'This email service scans your messages for targeted advertising. Consider an encrypted alternative.',
+    alternatives: [
+      { name: 'ProtonMail', url: 'https://protonmail.com', desc: 'End-to-end encrypted, Swiss privacy' },
+      { name: 'Tuta', url: 'https://tuta.com', desc: 'Encrypted email, based in Germany' }
+    ],
     enabled: true
   }
 ];
@@ -457,10 +485,18 @@ function buildRedirectUrl(originalUrl, rule) {
 function buildInterstitialUrl(originalUrl, rule) {
   const params = new URLSearchParams({
     originalUrl: originalUrl,
-    message: rule.message || '',
-    alternativeUrl: rule.alternativeUrl || '',
-    alternativeName: rule.alternativeName || ''
+    message: rule.message || ''
   });
+
+  // Support new alternatives array and legacy single alternative
+  if (rule.alternatives && rule.alternatives.length > 0) {
+    params.set('alternatives', JSON.stringify(rule.alternatives));
+  } else if (rule.alternativeUrl) {
+    params.set('alternatives', JSON.stringify([
+      { name: rule.alternativeName || 'Alternative', url: rule.alternativeUrl, desc: '' }
+    ]));
+  }
+
   return chrome.runtime.getURL('interstitial.html') + '?' + params.toString();
 }
 
