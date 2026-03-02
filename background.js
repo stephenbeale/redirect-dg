@@ -81,9 +81,9 @@ const DEFAULT_RULES = [
     label: 'Video platform',
     fromPattern: '*://*.youtube.com/*',
     action: 'interstitial',
-    message: 'This site tracks your activity. Consider using FreeTube instead — a privacy-friendly desktop alternative.',
+    message: 'This site tracks your activity extensively. Consider using FreeTube (desktop app), Invidious or Piped (web) — privacy-friendly alternatives that let you watch without being profiled.',
     alternativeUrl: 'https://freetubeapp.io',
-    alternativeName: 'FreeTube',
+    alternativeName: 'FreeTube / Invidious / Piped',
     enabled: true
   },
   {
@@ -128,6 +128,149 @@ const DEFAULT_RULES = [
     message: 'This cloud storage service accesses your files for data profiling. Consider switching to Proton Drive for private, encrypted storage.',
     alternativeUrl: 'https://proton.me/drive',
     alternativeName: 'Proton Drive',
+    enabled: true
+  },
+  {
+    id: 'news',
+    label: 'News aggregator',
+    fromPattern: '*://news.google.com/*',
+    action: 'redirect',
+    toUrl: 'https://ground.news/',
+    enabled: true
+  },
+  {
+    id: 'meet',
+    label: 'Video conferencing',
+    fromPattern: '*://meet.google.com/*',
+    action: 'redirect',
+    toUrl: 'https://meet.jit.si/',
+    enabled: true
+  },
+  {
+    id: 'calendar',
+    label: 'Calendar',
+    fromPattern: '*://calendar.google.com/*',
+    action: 'interstitial',
+    message: 'This calendar service links your schedule to a data profile. Consider switching to Proton Calendar for private, encrypted scheduling.',
+    alternativeUrl: 'https://calendar.proton.me',
+    alternativeName: 'Proton Calendar',
+    enabled: true
+  },
+  {
+    id: 'docs',
+    label: 'Documents',
+    fromPattern: '*://docs.google.com/*',
+    action: 'interstitial',
+    message: 'This productivity suite scans your documents for profiling. Consider switching to CryptPad for collaborative, encrypted editing.',
+    alternativeUrl: 'https://cryptpad.fr',
+    alternativeName: 'CryptPad',
+    enabled: true
+  },
+  {
+    id: 'photos',
+    label: 'Photos',
+    fromPattern: '*://photos.google.com/*',
+    action: 'interstitial',
+    message: 'This photo service uses facial recognition and scans your images. Consider switching to Ente for encrypted, private photo storage.',
+    alternativeUrl: 'https://ente.io',
+    alternativeName: 'Ente',
+    enabled: true
+  },
+  {
+    id: 'keep',
+    label: 'Notes',
+    fromPattern: '*://keep.google.com/*',
+    action: 'interstitial',
+    message: 'This notes app syncs your data for profiling. Consider switching to Standard Notes for end-to-end encrypted note-taking.',
+    alternativeUrl: 'https://standardnotes.com',
+    alternativeName: 'Standard Notes',
+    enabled: true
+  },
+  {
+    id: 'search-bing',
+    label: 'Search (Bing)',
+    fromPattern: '*://*.bing.com/*',
+    action: 'redirect',
+    toUrl: 'https://duckduckgo.com/',
+    preserveQuery: 'q',
+    enabled: true
+  },
+  {
+    id: 'social-twitter',
+    label: 'Social (Twitter)',
+    fromPattern: '*://*.twitter.com/*',
+    action: 'interstitial',
+    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider switching to Bluesky for a more open, decentralized social experience.',
+    alternativeUrl: 'https://bsky.app',
+    alternativeName: 'Bluesky',
+    enabled: true
+  },
+  {
+    id: 'social-x',
+    label: 'Social (X)',
+    fromPattern: '*://*.x.com/*',
+    action: 'interstitial',
+    message: 'This platform heavily tracks your activity and manipulates your feed with algorithms. Consider switching to Bluesky for a more open, decentralized social experience.',
+    alternativeUrl: 'https://bsky.app',
+    alternativeName: 'Bluesky',
+    enabled: true
+  },
+  {
+    id: 'social-reddit',
+    label: 'Social (Reddit)',
+    fromPattern: '*://www.reddit.com/*',
+    action: 'redirect',
+    toUrl: 'https://old.reddit.com/',
+    preservePath: true,
+    enabled: true
+  },
+  {
+    id: 'articles-medium',
+    label: 'Articles (Medium)',
+    fromPattern: '*://*.medium.com/*',
+    action: 'redirect',
+    toUrl: 'https://scribe.rip/',
+    preservePath: true,
+    enabled: true
+  },
+  {
+    id: 'messaging-whatsapp',
+    label: 'Messaging (WhatsApp)',
+    fromPattern: '*://web.whatsapp.com/*',
+    action: 'interstitial',
+    message: 'This messaging service shares metadata with its parent company for advertising. Consider switching to Signal for truly private, encrypted messaging.',
+    alternativeUrl: 'https://signal.org',
+    alternativeName: 'Signal',
+    enabled: true
+  },
+  {
+    id: 'email-outlook',
+    label: 'Email (Outlook)',
+    fromPattern: '*://*.outlook.com/*',
+    action: 'interstitial',
+    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
+    alternativeUrl: 'https://protonmail.com',
+    alternativeName: 'ProtonMail',
+    enabled: true
+  },
+  {
+    id: 'email-outlook-live',
+    label: 'Email (Outlook Live)',
+    fromPattern: '*://*.outlook.live.com/*',
+    action: 'interstitial',
+    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
+    alternativeUrl: 'https://protonmail.com',
+    alternativeName: 'ProtonMail',
+    enabled: true
+  },
+  {
+    id: 'email-hotmail',
+    label: 'Email (Hotmail)',
+    fromPattern: '*://*.hotmail.com/*',
+    action: 'interstitial',
+    message: 'This email service scans your messages for targeted advertising. Consider switching to ProtonMail for end-to-end encrypted email.',
+    alternativeUrl: 'https://protonmail.com',
+    alternativeName: 'ProtonMail',
     enabled: true
   }
 ];
@@ -236,7 +379,7 @@ function findMatchingRule(url, rules) {
   // Sort rules so that more specific hostname matches come first.
   // Subdomains like maps., mail., translate., drive. and youtube.com
   // should be checked before the generic catch-all domain rules.
-  const specificPrefixes = ['maps.', 'mail.', 'translate.', 'drive.', 'play.'];
+  const specificPrefixes = ['maps.', 'mail.', 'translate.', 'drive.', 'play.', 'news.', 'meet.', 'calendar.', 'docs.', 'photos.', 'keep.'];
   const isSpecificHost = (h) =>
     specificPrefixes.some(p => h.startsWith(p)) ||
     h.includes('youtube.com');
@@ -288,6 +431,18 @@ function buildRedirectUrl(originalUrl, rule) {
         target.searchParams.set(rule.preserveQuery, queryValue);
         targetUrl = target.toString();
       }
+    } catch {
+      // Fall through to plain redirect
+    }
+  }
+
+  if (rule.preservePath) {
+    try {
+      const parsed = new URL(originalUrl);
+      const target = new URL(targetUrl);
+      target.pathname = parsed.pathname;
+      target.search = parsed.search;
+      targetUrl = target.toString();
     } catch {
       // Fall through to plain redirect
     }
