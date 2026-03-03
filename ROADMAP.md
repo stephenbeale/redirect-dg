@@ -65,3 +65,21 @@
 - [ ] AI-powered alternative suggestions based on the page content
 - [ ] Collaborative blocklist maintained by the community
 - [ ] Integration with other privacy tools (uBlock Origin, Privacy Badger)
+
+---
+
+## Separate Product Idea — Ethical Browse (not part of Redirect DG)
+
+A standalone extension (or companion product) focused on **ethical consumption** rather than just privacy. Where Redirect DG is about who tracks you, this would be about who deserves your attention and money.
+
+**Core concept:** Flag websites and businesses with poor ethical reputations — tax avoidance, labour practices, environmental record, greenwashing, monopolistic behaviour — and surface better alternatives where they exist.
+
+**Possible features:**
+- Ethical rating badge injected onto product pages, search results, and brand websites
+- Ratings sourced from third-party indices (e.g. Good On You, Ethical Consumer, B Corp, Open Secrets)
+- "Better alternatives" suggestions for unethical brands (e.g. visit an independent retailer instead of a fast-fashion giant)
+- User-contributed flags with sourced evidence
+- Category filters: environment / labour / tax / data / political donations
+- Works on shopping sites, news outlets, and company homepages
+
+**Why separate:** Redirect DG's scope is privacy-focused redirects. Ethical ratings are a broader, more subjective domain requiring a different data model, moderation approach, and likely a backend service for ratings data.
