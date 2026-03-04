@@ -14,6 +14,11 @@
   const saveBtn = document.getElementById('saveBtn');
   const saveStatus = document.getElementById('saveStatus');
   const exclusionsList = document.getElementById('exclusionsList');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFileInput = document.getElementById('importFileInput');
+  const shareBtn = document.getElementById('shareBtn');
+  const packsGrid = document.getElementById('packsGrid');
 
   // Modal elements
   const ruleModal = document.getElementById('ruleModal');
@@ -44,6 +49,8 @@
 
   loadSettings();
   loadPaymentExclusions();
+  renderCommunityPacks();
+  checkUrlImport();
 
   // ─── Global Toggle ───────────────────────────────────────────────
 
@@ -403,5 +410,166 @@
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  // ─── Export Rules ──────────────────────────────────────────────
+
+  exportBtn.addEventListener('click', () => {
+    const envelope = {
+      version: '1.2',
+      exportedAt: new Date().toISOString(),
+      rules: currentRules
+    };
+    const json = JSON.stringify(envelope, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'redirect-dg-rules.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showSaveStatus('Rules exported.', 'success');
+  });
+
+  // ─── Import Rules ──────────────────────────────────────────────
+
+  importBtn.addEventListener('click', () => {
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        const rules = data.rules;
+
+        if (!Array.isArray(rules)) {
+          showSaveStatus('Invalid file: missing rules array.', 'error');
+          return;
+        }
+
+        for (const rule of rules) {
+          if (!rule.fromPattern || !rule.action) {
+            showSaveStatus('Invalid file: each rule must have fromPattern and action.', 'error');
+            return;
+          }
+        }
+
+        if (!confirm(`Import ${rules.length} rules? This will replace your current rules.`)) return;
+
+        currentRules = rules;
+        renderRulesTable();
+        showSaveStatus(`Imported ${rules.length} rules. Click Save to persist.`, 'success');
+      } catch {
+        showSaveStatus('Invalid JSON file.', 'error');
+      }
+    };
+    reader.readAsText(file);
+    importFileInput.value = '';
+  });
+
+  // ─── Share Rules via URL ───────────────────────────────────────
+
+  shareBtn.addEventListener('click', () => {
+    const json = JSON.stringify(currentRules);
+    const encoded = btoa(unescape(encodeURIComponent(json)));
+    const shareUrl = chrome.runtime.getURL('options.html') + '?import=' + encoded;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showSaveStatus('Share link copied to clipboard.', 'success');
+    }).catch(() => {
+      showSaveStatus('Failed to copy link.', 'error');
+    });
+  });
+
+  function checkUrlImport() {
+    const params = new URLSearchParams(window.location.search);
+    const importData = params.get('import');
+    if (!importData) return;
+
+    try {
+      const json = decodeURIComponent(escape(atob(importData)));
+      const rules = JSON.parse(json);
+
+      if (!Array.isArray(rules)) {
+        showSaveStatus('Invalid share link: bad data.', 'error');
+        return;
+      }
+
+      if (!confirm(`Import ${rules.length} shared rules? This will replace your current rules.`)) return;
+
+      currentRules = rules;
+      renderRulesTable();
+      showSaveStatus(`Imported ${rules.length} shared rules. Click Save to persist.`, 'success');
+
+      // Clean the URL
+      window.history.replaceState({}, '', chrome.runtime.getURL('options.html'));
+    } catch {
+      showSaveStatus('Invalid share link.', 'error');
+    }
+  }
+
+  // ─── Community Packs ──────────────────────────────────────────
+
+  function renderCommunityPacks() {
+    if (typeof COMMUNITY_PACKS === 'undefined') return;
+    packsGrid.innerHTML = '';
+
+    COMMUNITY_PACKS.forEach((pack) => {
+      const isAllDefaults = pack.rules === 'ALL_DEFAULTS';
+      const ruleCount = isAllDefaults ? 'All defaults' : `${pack.rules.length} rules`;
+
+      const card = document.createElement('div');
+      card.className = 'pack-card';
+
+      const header = document.createElement('div');
+      header.className = 'pack-card-header';
+
+      const name = document.createElement('h3');
+      name.className = 'pack-name';
+      name.textContent = pack.name;
+      header.appendChild(name);
+
+      const badge = document.createElement('span');
+      badge.className = 'pack-count';
+      badge.textContent = ruleCount;
+      header.appendChild(badge);
+
+      card.appendChild(header);
+
+      const desc = document.createElement('p');
+      desc.className = 'pack-description';
+      desc.textContent = pack.description;
+      card.appendChild(desc);
+
+      const applyBtn = document.createElement('button');
+      applyBtn.className = 'btn btn-small btn-primary';
+      applyBtn.textContent = 'Apply';
+      applyBtn.addEventListener('click', () => {
+        if (!confirm(`Apply "${pack.name}"? This will replace your current rules.`)) return;
+
+        if (isAllDefaults) {
+          chrome.runtime.sendMessage({ type: 'resetRules' }, (response) => {
+            if (chrome.runtime.lastError) {
+              showSaveStatus('Failed to apply pack.', 'error');
+              return;
+            }
+            currentRules = response.rules;
+            renderRulesTable();
+            showSaveStatus(`Applied "${pack.name}". Saved.`, 'success');
+          });
+        } else {
+          currentRules = JSON.parse(JSON.stringify(pack.rules));
+          renderRulesTable();
+          showSaveStatus(`Applied "${pack.name}". Click Save to persist.`, 'success');
+        }
+      });
+      card.appendChild(applyBtn);
+
+      packsGrid.appendChild(card);
+    });
   }
 })();
