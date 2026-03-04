@@ -45,12 +45,17 @@
   let currentRules = [];
   let editingIndex = -1; // -1 means adding new, >= 0 means editing
 
+  // Bypass section elements
+  const bypassSection = document.getElementById('bypassSection');
+  const bypassList = document.getElementById('bypassList');
+
   // ─── Initialization ──────────────────────────────────────────────
 
   loadSettings();
   loadPaymentExclusions();
   renderCommunityPacks();
   checkUrlImport();
+  loadPermanentBypasses();
 
   // ─── Global Toggle ───────────────────────────────────────────────
 
@@ -363,6 +368,49 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !ruleModal.hidden) hideModal();
   });
+
+  // ─── Permanent Bypasses ─────────────────────────────────────────
+
+  function loadPermanentBypasses() {
+    chrome.runtime.sendMessage({ type: 'getPermanentBypasses' }, (response) => {
+      if (chrome.runtime.lastError || !response) return;
+      renderBypasses(response.bypasses || []);
+    });
+  }
+
+  function renderBypasses(bypasses) {
+    if (bypasses.length === 0) {
+      bypassSection.hidden = true;
+      return;
+    }
+
+    bypassSection.hidden = false;
+    bypassList.innerHTML = '';
+
+    bypasses.forEach((domain) => {
+      const item = document.createElement('div');
+      item.className = 'bypass-item';
+
+      const domainSpan = document.createElement('span');
+      domainSpan.className = 'bypass-domain';
+      domainSpan.textContent = domain;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'bypass-remove';
+      removeBtn.title = 'Remove bypass';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ type: 'removePermanentBypass', domain }, (response) => {
+          if (chrome.runtime.lastError) return;
+          renderBypasses(response.bypasses || []);
+        });
+      });
+
+      item.appendChild(domainSpan);
+      item.appendChild(removeBtn);
+      bypassList.appendChild(item);
+    });
+  }
 
   // ─── Payment Exclusions ──────────────────────────────────────────
 
