@@ -23,10 +23,10 @@
 
 ## v1.2 — Import / Export & Sync
 
-- [ ] Export rules as JSON file
-- [ ] Import rules from JSON file
-- [ ] Share rule sets via URL (base64-encoded config)
-- [ ] Community rule packs (curated sets users can one-click import)
+- [x] Export rules as JSON file
+- [x] Import rules from JSON file
+- [x] Share rule sets via URL (base64-encoded config)
+- [x] Community rule packs (curated sets users can one-click import)
 
 ## v1.3 — Smarter Matching
 
