@@ -67,6 +67,19 @@
         </div>
       </section>
 
+      <!-- Permanently bypassed sites -->
+      <section class="card" id="bypassSection" hidden>
+        <div class="card-header">
+          <h2>Permanently Bypassed Sites</h2>
+        </div>
+        <p class="card-description">
+          These domains will skip the interstitial warning page. You chose "Don't show again" for these sites.
+        </p>
+        <div class="bypass-list" id="bypassList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
       <!-- Payment exclusions (read-only) -->
       <section class="card">
         <div class="card-header">
@@ -94,7 +107,7 @@
           rules display a warning page with an option to continue to the original site.
         </p>
         <p class="card-description" style="margin-top: 8px;">
-          Version 1.0.0
+          Version 1.1.0
         </p>
         <p class="card-description" style="margin-top: 12px;">
           Like this extension?

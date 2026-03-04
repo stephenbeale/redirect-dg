@@ -1,5 +1,5 @@
 // Redirect DG — Popup Logic
-// Manages the enable/disable toggle and links to the options page.
+// Manages the enable/disable toggle, redirect counter display, and links to the options page.
 
 (function () {
   'use strict';
@@ -8,6 +8,7 @@
   const statusLabel = document.getElementById('statusLabel');
   const statusDescription = document.getElementById('statusDescription');
   const openOptionsBtn = document.getElementById('openOptions');
+  const redirectCountEl = document.getElementById('redirectCount');
 
   function updateUI(enabled) {
     toggle.checked = enabled;
@@ -25,6 +26,19 @@
     }
   }
 
+  function loadRedirectCount() {
+    chrome.runtime.sendMessage({ type: 'getRedirectCount' }, (response) => {
+      if (chrome.runtime.lastError || !response) return;
+      const count = response.count || 0;
+      if (count > 0) {
+        redirectCountEl.innerHTML =
+          `<span class="count-number">${count}</span> redirect${count !== 1 ? 's' : ''} today`;
+      } else {
+        redirectCountEl.textContent = '';
+      }
+    });
+  }
+
   // Load current status on popup open
   chrome.runtime.sendMessage({ type: 'getStatus' }, (response) => {
     if (chrome.runtime.lastError) {
@@ -34,6 +48,9 @@
     }
     updateUI(response.enabled);
   });
+
+  // Load redirect count
+  loadRedirectCount();
 
   // Toggle handler
   toggle.addEventListener('change', () => {

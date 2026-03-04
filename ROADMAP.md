@@ -16,10 +16,10 @@
 
 ## v1.1 — Enhanced Interstitials
 
-- [ ] Multiple alternative links per interstitial (e.g. FreeTube + Invidious + Piped as separate buttons)
-- [ ] "Don't show again for this site" option on interstitials (persistent bypass per domain)
-- [ ] Countdown timer option before "Continue anyway" becomes clickable
-- [ ] Redirect counter badge on the extension icon showing how many redirects happened today
+- [x] Multiple alternative links per interstitial (e.g. FreeTube + Invidious + Piped as separate buttons)
+- [x] "Don't show again for this site" option on interstitials (persistent bypass per domain)
+- [x] Countdown timer option before "Continue anyway" becomes clickable
+- [x] Redirect counter badge on the extension icon showing how many redirects happened today
 
 ## v1.2 — Import / Export & Sync
 

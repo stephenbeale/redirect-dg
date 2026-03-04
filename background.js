@@ -500,6 +500,68 @@ function buildInterstitialUrl(originalUrl, rule) {
   return chrome.runtime.getURL('interstitial.html') + '?' + params.toString();
 }
 
+// ─── Redirect Counter ──────────────────────────────────────────────────────────
+
+/**
+ * Returns today's date key for the redirect counter (YYYY-MM-DD).
+ */
+function getTodayKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `redirectCount_${y}-${m}-${d}`;
+}
+
+/**
+ * Increments today's redirect count and updates the badge.
+ */
+async function incrementRedirectCount() {
+  const key = getTodayKey();
+  const result = await chrome.storage.local.get([key]);
+  const count = (result[key] || 0) + 1;
+  await chrome.storage.local.set({ [key]: count });
+  updateBadge(count);
+}
+
+/**
+ * Updates the extension icon badge with the given count.
+ */
+function updateBadge(count) {
+  if (count > 0) {
+    chrome.action.setBadgeText({ text: count.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: '#e94560' });
+  } else {
+    chrome.action.setBadgeText({ text: '' });
+  }
+}
+
+/**
+ * Loads today's count and sets the badge on startup.
+ */
+async function initBadge() {
+  const settings = await chrome.storage.sync.get(['enabled']);
+  if (settings.enabled === false) {
+    chrome.action.setBadgeText({ text: '' });
+    return;
+  }
+  const key = getTodayKey();
+  const result = await chrome.storage.local.get([key]);
+  const count = result[key] || 0;
+  updateBadge(count);
+}
+
+// ─── Permanent Bypass ──────────────────────────────────────────────────────────
+
+/**
+ * Checks if a domain has a permanent bypass set.
+ */
+async function isPermanentlyBypassed(hostname) {
+  const result = await chrome.storage.sync.get(['permanentBypasses']);
+  const bypasses = result.permanentBypasses || [];
+  return bypasses.includes(hostname);
+}
+
 // ─── Installation: Set Default Rules ───────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener((details) => {
@@ -512,6 +574,10 @@ chrome.runtime.onInstalled.addListener((details) => {
     });
   }
 });
+
+// ─── Service Worker Startup ────────────────────────────────────────────────────
+
+initBadge();
 
 // ─── Navigation Interception ───────────────────────────────────────────────────
 
@@ -556,11 +622,22 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const rule = findMatchingRule(url, rules);
   if (!rule) return;
 
+  // Check permanent bypass for interstitial rules
+  if (rule.action === 'interstitial') {
+    try {
+      const hostname = new URL(url).hostname;
+      if (await isPermanentlyBypassed(hostname)) return;
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
   // Execute the rule
   if (rule.action === 'redirect') {
     const redirectUrl = buildRedirectUrl(url, rule);
     try {
       await chrome.tabs.update(tabId, { url: redirectUrl });
+      await incrementRedirectCount();
     } catch (err) {
       console.error('Redirect DG: failed to redirect tab', err);
     }
@@ -568,6 +645,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     const interstitialUrl = buildInterstitialUrl(url, rule);
     try {
       await chrome.tabs.update(tabId, { url: interstitialUrl });
+      await incrementRedirectCount();
     } catch (err) {
       console.error('Redirect DG: failed to show interstitial', err);
     }
@@ -590,6 +668,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.type === 'bypassPermanent') {
+    // Add domain to permanent bypass list
+    const domain = message.domain;
+    if (domain) {
+      chrome.storage.sync.get(['permanentBypasses'], (result) => {
+        const bypasses = result.permanentBypasses || [];
+        if (!bypasses.includes(domain)) {
+          bypasses.push(domain);
+          chrome.storage.sync.set({ permanentBypasses: bypasses }, () => {
+            sendResponse({ ok: true });
+          });
+        } else {
+          sendResponse({ ok: true });
+        }
+      });
+    } else {
+      sendResponse({ ok: false });
+    }
+    return true;
+  }
+
   if (message.type === 'getStatus') {
     chrome.storage.sync.get(['enabled'], (result) => {
       sendResponse({ enabled: result.enabled !== false });
@@ -599,6 +698,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'setStatus') {
     chrome.storage.sync.set({ enabled: message.enabled }, () => {
+      // Clear or restore badge when toggling
+      if (message.enabled) {
+        initBadge();
+      } else {
+        chrome.action.setBadgeText({ text: '' });
+      }
       sendResponse({ ok: true });
     });
     return true;
@@ -635,6 +740,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       hosts: PAYMENT_EXCLUSION_HOSTS,
       hostPaths: PAYMENT_EXCLUSION_HOST_PATHS,
       pathFragments: PAYMENT_EXCLUSION_PATH_FRAGMENTS
+    });
+    return true;
+  }
+
+  if (message.type === 'getRedirectCount') {
+    const key = getTodayKey();
+    chrome.storage.local.get([key], (result) => {
+      sendResponse({ count: result[key] || 0 });
+    });
+    return true;
+  }
+
+  if (message.type === 'getPermanentBypasses') {
+    chrome.storage.sync.get(['permanentBypasses'], (result) => {
+      sendResponse({ bypasses: result.permanentBypasses || [] });
+    });
+    return true;
+  }
+
+  if (message.type === 'removePermanentBypass') {
+    const domain = message.domain;
+    chrome.storage.sync.get(['permanentBypasses'], (result) => {
+      const bypasses = (result.permanentBypasses || []).filter(d => d !== domain);
+      chrome.storage.sync.set({ permanentBypasses: bypasses }, () => {
+        sendResponse({ ok: true, bypasses });
+      });
     });
     return true;
   }

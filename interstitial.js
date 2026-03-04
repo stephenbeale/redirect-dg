@@ -1,6 +1,6 @@
 // Redirect DG — Interstitial Page Logic
 // Reads URL params to display the appropriate warning and alternatives,
-// and handles the "Continue anyway" bypass flow.
+// handles countdown timer, and manages bypass flows.
 
 (function () {
   'use strict';
@@ -8,6 +8,7 @@
   const params = new URLSearchParams(window.location.search);
   const originalUrl = params.get('originalUrl') || '';
   const message = params.get('message') || '';
+  const countdownDuration = parseInt(params.get('countdown'), 10) || 5;
 
   // Parse alternatives (new array format or legacy single)
   let alternatives = [];
@@ -59,12 +60,46 @@
     altSection.style.display = 'none';
   }
 
-  // "Continue anyway" button — sends bypass message to background service worker
+  // ─── Countdown Timer ────────────────────────────────────────────────
   const continueBtn = document.getElementById('continueBtn');
+  const permanentBypassCheckbox = document.getElementById('permanentBypass');
+  let remaining = countdownDuration;
+
+  function updateCountdownText() {
+    if (remaining > 0) {
+      continueBtn.textContent = `Continue anyway (${remaining}s)`;
+      continueBtn.disabled = true;
+    } else {
+      continueBtn.textContent = 'Continue anyway';
+      continueBtn.disabled = false;
+    }
+  }
+
+  updateCountdownText();
+
+  const countdownInterval = setInterval(() => {
+    remaining--;
+    updateCountdownText();
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+    }
+  }, 1000);
+
+  // ─── "Continue anyway" — sends bypass message to background ─────────
   continueBtn.addEventListener('click', () => {
     if (!originalUrl) {
       history.back();
       return;
+    }
+
+    // If permanent bypass is checked, send that first
+    if (permanentBypassCheckbox && permanentBypassCheckbox.checked) {
+      try {
+        const domain = new URL(originalUrl).hostname;
+        chrome.runtime.sendMessage({ type: 'bypassPermanent', domain });
+      } catch {
+        // Ignore parse errors
+      }
     }
 
     chrome.runtime.sendMessage(
