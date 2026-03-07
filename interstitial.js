@@ -43,17 +43,14 @@
       name.className = 'alt-name';
       name.textContent = alt.name;
 
-      const desc = document.createElement('span');
-      desc.className = 'alt-desc';
-      desc.textContent = alt.desc || '';
-
-      const arrow = document.createElement('span');
-      arrow.className = 'alt-arrow';
-      arrow.textContent = '\u2192';
-
       card.appendChild(name);
-      if (alt.desc) card.appendChild(desc);
-      card.appendChild(arrow);
+
+      if (alt.desc) {
+        const desc = document.createElement('span');
+        desc.className = 'alt-desc';
+        desc.textContent = '\u2014 ' + alt.desc;
+        card.appendChild(desc);
+      }
       altGrid.appendChild(card);
     });
   } else {
