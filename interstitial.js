@@ -83,22 +83,8 @@
   }, 1000);
 
   // ─── "Continue anyway" — sends bypass message to background ─────────
-  continueBtn.addEventListener('click', () => {
-    if (!originalUrl) {
-      history.back();
-      return;
-    }
 
-    // If permanent bypass is checked, send that first
-    if (permanentBypassCheckbox && permanentBypassCheckbox.checked) {
-      try {
-        const domain = new URL(originalUrl).hostname;
-        chrome.runtime.sendMessage({ type: 'bypassPermanent', domain });
-      } catch {
-        // Ignore parse errors
-      }
-    }
-
+  function navigateBypass() {
     chrome.runtime.sendMessage(
       { type: 'bypass', url: originalUrl },
       (response) => {
@@ -108,6 +94,31 @@
         }
       }
     );
+  }
+
+  continueBtn.addEventListener('click', () => {
+    if (!originalUrl) {
+      history.back();
+      return;
+    }
+
+    // If permanent bypass is checked, wait for storage write before navigating
+    if (permanentBypassCheckbox && permanentBypassCheckbox.checked) {
+      try {
+        const domain = new URL(originalUrl).hostname;
+        chrome.runtime.sendMessage({ type: 'bypassPermanent', domain }, () => {
+          if (chrome.runtime.lastError) {
+            console.error('Redirect DG: permanent bypass failed', chrome.runtime.lastError);
+          }
+          navigateBypass();
+        });
+        return;
+      } catch {
+        // URL parse failed — fall through to navigate without saving bypass
+      }
+    }
+
+    navigateBypass();
   });
 
   // "Go back" button
