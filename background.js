@@ -325,9 +325,28 @@ const PAYMENT_EXCLUSION_PATH_FRAGMENTS = [
   '/order'
 ];
 
-// ─── Session Bypass (in-memory, resets on service worker restart) ───────────────
+// ─── Session Bypass (persists for browser session via chrome.storage.session) ──
 
-const sessionBypass = new Set();
+/**
+ * Checks if a domain has a session bypass set.
+ */
+async function isSessionBypassed(hostname) {
+  const result = await chrome.storage.session.get(['sessionBypasses']);
+  const bypasses = result.sessionBypasses || [];
+  return bypasses.includes(hostname);
+}
+
+/**
+ * Adds a domain to the session bypass list.
+ */
+async function addSessionBypass(hostname) {
+  const result = await chrome.storage.session.get(['sessionBypasses']);
+  const bypasses = result.sessionBypasses || [];
+  if (!bypasses.includes(hostname)) {
+    bypasses.push(hostname);
+    await chrome.storage.session.set({ sessionBypasses: bypasses });
+  }
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -597,13 +616,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   // Check payment exclusions FIRST — never redirect these
   if (isPaymentExcluded(url)) return;
 
-  // Check session bypass
-  if (sessionBypass.has(url)) {
-    // Remove from bypass after use (one-time bypass)
-    sessionBypass.delete(url);
-    return;
-  }
-
   // Load settings
   let settings;
   try {
@@ -622,10 +634,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const rule = findMatchingRule(url, rules);
   if (!rule) return;
 
-  // Check permanent bypass for interstitial rules
+  // Check session and permanent bypasses for interstitial rules
   if (rule.action === 'interstitial') {
     try {
       const hostname = new URL(url).hostname;
+      if (await isSessionBypassed(hostname)) return;
       if (await isPermanentlyBypassed(hostname)) return;
     } catch {
       // Ignore parse errors
@@ -656,12 +669,21 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'bypass') {
-    // Add URL to session bypass set and navigate
+    // Add domain to session bypass and navigate
     const originalUrl = message.url;
     if (originalUrl) {
-      sessionBypass.add(originalUrl);
-      if (sender.tab && sender.tab.id) {
-        chrome.tabs.update(sender.tab.id, { url: originalUrl });
+      try {
+        const hostname = new URL(originalUrl).hostname;
+        addSessionBypass(hostname).then(() => {
+          if (sender.tab && sender.tab.id) {
+            chrome.tabs.update(sender.tab.id, { url: originalUrl });
+          }
+        });
+      } catch {
+        // URL parse failed — navigate without saving bypass
+        if (sender.tab && sender.tab.id) {
+          chrome.tabs.update(sender.tab.id, { url: originalUrl });
+        }
       }
     }
     sendResponse({ ok: true });
