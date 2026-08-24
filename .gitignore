@@ -5,3 +5,9 @@ generate-icons.html
 # OS files
 .DS_Store
 Thumbs.db
+
+# Build output — packaged extension zips should not be committed.
+# Archived Chrome Web Store submission bundles under store-assets/ are an
+# intentional exception and were force-added (`git add -f`); once tracked,
+# this rule no longer affects them.
+*.zip
